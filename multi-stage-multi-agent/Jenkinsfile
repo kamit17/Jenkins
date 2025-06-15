@@ -6,15 +6,50 @@ pipeline {
         docker { image 'maven:3.8.1-adoptopenjdk-11' }
       }
       steps {
-        sh 'mvn --version'
+        echo 'Building Hello World Java app...'
+
+        // Create basic project structure
+        sh '''
+          mkdir -p src/main/java/com/example
+          cat > src/main/java/com/example/HelloWorld.java <<EOF
+          package com.example;
+
+          public class HelloWorld {
+              public static void main(String[] args) {
+                  System.out.println("Hello from Java backend!");
+              }
+          }
+          EOF
+
+          cat > pom.xml <<EOF
+          <project xmlns="http://maven.apache.org/POM/4.0.0"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                   http://maven.apache.org/xsd/maven-4.0.0.xsd">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>helloworld</artifactId>
+              <version>1.0</version>
+          </project>
+          EOF
+
+          mvn compile
+          java -cp target/classes com.example.HelloWorld
+        '''
       }
     }
+
     stage('Front-end') {
       agent {
         docker { image 'node:16-alpine' }
       }
       steps {
-        sh 'node --version'
+        echo 'Running Hello World Node.js app...'
+
+        sh '''
+          echo "console.log('Hello from Node.js frontend!');" > app.js
+          node app.js
+        '''
       }
     }
   }
