@@ -1,12 +1,35 @@
 pipeline {
   agent {
-    docker { image 'node:16-alpine' }
+    docker {
+      image 'node:16-alpine'
+    }
   }
+
   stages {
-    stage('Test') {
+    stage('Check Node Version') {
       steps {
+        echo 'Checking Node.js version inside Docker container...'
         sh 'node --version'
       }
+    }
+
+    stage('Check NPM Version') {
+      steps {
+        echo 'Checking npm version...'
+        sh 'npm --version'
+      }
+    }
+  }
+
+  post {
+    always {
+      echo 'Pipeline execution completed.'
+    }
+    success {
+      echo 'Environment is ready. Node and npm are available.'
+    }
+    failure {
+      echo 'Something went wrong. Please check the logs.'
     }
   }
 }
